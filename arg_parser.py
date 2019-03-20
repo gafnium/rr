@@ -46,6 +46,13 @@ def _register_actions(parser):
         help='initialize RemoteRun in current directory')
 
     exclusive_action_args.add_argument(
+        '--config',
+        action='store_const',
+        dest='action',
+        const=actions.ConfigAction,
+        help='edit RemoteRun config applicable to current directory')
+
+    exclusive_action_args.add_argument(
         '--is-configured',
         action='store_const',
         dest='action',

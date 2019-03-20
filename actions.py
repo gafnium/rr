@@ -83,6 +83,13 @@ class InitAction(BasicAction):
     def launch(self):
         configtools.create_initial_config()
 
+class ConfigAction(BasicAction):
+    def __init__(self, args):
+        super().__init__(args)
+
+    def launch(self):
+        configtools.edit_current_config()
+
 
 class IsConfiguredAction(BasicAction):
     def __init__(self, args):

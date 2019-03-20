@@ -94,4 +94,8 @@ def create_initial_config():
 
     os.system('vim {}'.format(CONFIG_FILE_NAME))
 
+def edit_current_config():
+    local_dir = os.path.realpath(os.curdir)
+    config_file = find_config(local_dir)
 
+    os.system('vim {}'.format(config_file))
