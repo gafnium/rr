@@ -4,8 +4,14 @@ import sys
 import logging
 import subprocess
 
-def rsync(src, dst):
+def rsync(src, dst, config):
     options = ('--delete', '--verbose', '--compress', '--archive', '-e', 'ssh -q')
+
+    if config['filters'] :
+        for filter in config['filters'].split('\n'):
+            if filter != '':
+              options += ('--filter', filter)
+
     command = ('rsync',) + options + (src + '/', dst + '/')
 
     logging.info('Remote syncing from {} to {} '.format(src, dst))
@@ -25,14 +31,14 @@ def rsync(src, dst):
     return result
 
 
-def send(local_dir, host, remote_dir):
+def send(local_dir, host, remote_dir, config):
     remote_path = '{}:{}'.format(host, remote_dir)
-    return rsync(local_dir, remote_path)
+    return rsync(local_dir, remote_path, config)
 
 
-def receive(local_dir, host, remote_dir):
+def receive(local_dir, host, remote_dir, config):
     remote_path = '{}:{}'.format(host, remote_dir)
-    return rsync(remote_path, local_dir)
+    return rsync(remote_path, local_dir, config)
 
 
 def remote_exec(host, remote_dir, before_exec,  command):

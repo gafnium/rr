@@ -26,12 +26,22 @@ DEFAULT_CONFIG_TEXT = textwrap.dedent('''
     # BeforeExec = . .profile;
 
     # LogLevel = info
+
+    [rsync]
+
+    # General filters for rsync, newline-separated (indent line with values)
+    # See 'man rsync' or https://man.developpez.com/man1/rsync/#L15
+    # Filters =
+    #   + /foo/**
+    #   - bar
+
     ''').strip()
 
 DEFAULTS = {
     'ReceiveIfFailed': 'ask',
     'LogLevel': 'info',
     'BeforeExec':'',
+    'Filters':'',
     }
 
 
@@ -61,7 +71,8 @@ def parse_config(config_file):
     if config_text.find('[main]') == -1:
         config_text = '[main]\n' + config_text # Add placeholder section
 
-    config_parser = configparser.ConfigParser(defaults=DEFAULTS)
+    config_parser = configparser.ConfigParser(
+        defaults=DEFAULTS, empty_lines_in_values=True)
     config_parser.read_string(config_text)
 
     return {
@@ -70,6 +81,9 @@ def parse_config(config_file):
         'before_exec': config_parser['main']['BeforeExec'],
         'receive_if_failed': config_parser['main']['ReceiveIfFailed'],
         'log_level': _to_log_level(config_parser['main']['LogLevel']),
+        'rsync' : {
+                'filters': config_parser.get('rsync','Filters'),
+            }
         }
 
 
@@ -92,7 +106,7 @@ def get_settings():
 
 def create_initial_config():
     if os.path.exists(CONFIG_FILE_NAME):
-        raise RuntimeError('Config is already saved in {}'.format(CONFIG_FILE_NAME)) 
+        raise RuntimeError('Config is already saved in {}'.format(CONFIG_FILE_NAME))
 
     with open(CONFIG_FILE_NAME, mode='w') as config_file:
         print(DEFAULT_CONFIG_TEXT, file=config_file)

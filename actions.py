@@ -36,7 +36,7 @@ class SendAction(ConfigurableAction):
         super().__init__(args)
 
     def launch(self):
-        return remote.send(self.config['local_root'], self.config['remote_host'], self.config['remote_root'])
+        return remote.send(self.config['local_root'], self.config['remote_host'], self.config['remote_root'], self.config['rsync'])
 
 
 class ReceiveAction(ConfigurableAction):
@@ -44,7 +44,7 @@ class ReceiveAction(ConfigurableAction):
         super().__init__(args)
 
     def launch(self):
-        return remote.receive(self.config['local_root'], self.config['remote_host'], self.config['remote_root'])
+        return remote.receive(self.config['local_root'], self.config['remote_host'], self.config['remote_root'], self.config['rsync'])
 
 
 def _receive_if_failed(config):
@@ -57,20 +57,20 @@ def _receive_if_failed(config):
             return False
     else:
         return config['receive_if_failed'] == 'yes'
-        
+
 
 class RemoteRunAction(ConfigurableAction):
     def __init__(self, args):
         super().__init__(args)
 
     def launch(self):
-        sent = remote.send(self.config['local_root'], self.config['remote_host'], self.config['remote_root'])
-        
+        sent = remote.send(self.config['local_root'], self.config['remote_host'], self.config['remote_root'], self.config['rsync'])
+
         if sent:
             result = remote.remote_exec(self.config['remote_host'], self.config['remote_dir'], self.config['before_exec'], self.config['command'])
 
             if result or _receive_if_failed(self.config):
-                remote.receive(self.config['local_root'], self.config['remote_host'], self.config['remote_root'])
+                remote.receive(self.config['local_root'], self.config['remote_host'], self.config['remote_root'], self.config['rsync'])
             else:
                 logging.warning('Result not synced from server.')
                 logging.info('To sync it manually use' + ' `' + sys.argv[0] + ' -r`')
