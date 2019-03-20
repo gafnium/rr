@@ -67,7 +67,7 @@ class RemoteRunAction(ConfigurableAction):
         sent = remote.send(self.config['local_root'], self.config['remote_host'], self.config['remote_root'])
         
         if sent:
-            result = remote.remote_exec(self.config['remote_host'], self.config['remote_dir'], self.config['command'])
+            result = remote.remote_exec(self.config['remote_host'], self.config['remote_dir'], self.config['before_exec'], self.config['command'])
 
             if result or _receive_if_failed(self.config):
                 remote.receive(self.config['local_root'], self.config['remote_host'], self.config['remote_root'])

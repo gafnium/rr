@@ -22,12 +22,16 @@ DEFAULT_CONFIG_TEXT = textwrap.dedent('''
     # Receive or not if remote command failed (yes/no/ask)
     # ReceiveIfFailed = ask
 
+    # Add command(s) or prefix before each command
+    # BeforeExec = . .profile;
+
     # LogLevel = info
     ''').strip()
 
 DEFAULTS = {
     'ReceiveIfFailed': 'ask',
-    'LogLevel': 'info'
+    'LogLevel': 'info',
+    'BeforeExec':'',
     }
 
 
@@ -63,8 +67,9 @@ def parse_config(config_file):
     return {
         'remote_host': config_parser['main']['RemoteHost'],
         'remote_root': config_parser['main']['RemoteDir'],
+        'before_exec': config_parser['main']['BeforeExec'],
         'receive_if_failed': config_parser['main']['ReceiveIfFailed'],
-        'log_level': _to_log_level(config_parser['main']['LogLevel'])
+        'log_level': _to_log_level(config_parser['main']['LogLevel']),
         }
 
 
