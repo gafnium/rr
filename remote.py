@@ -50,7 +50,7 @@ def remote_exec(host, remote_dir, before_exec,  command):
         remote_env = remote_env,
         remote_dir = pipes.quote(remote_dir),
         before_exec = before_exec,
-        command = ' '.join(map(pipes.quote, command)) if command else '$SHELL')
+        command = ' '.join(command) if command else '$SHELL')
     local_command = 'ssh {args} -t {host} {command}'.format(
         args = '-q' if command else '',
         host = pipes.quote(host),
@@ -58,4 +58,3 @@ def remote_exec(host, remote_dir, before_exec,  command):
 
     logging.info('Executing {}'.format(local_command))
     return os.system(local_command) == 0
-
