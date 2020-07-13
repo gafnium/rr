@@ -2,7 +2,6 @@ import os
 import os.path
 
 import configparser
-import distutils.util
 import textwrap
 
 CONFIG_FILE_NAME = ".remoterun"
@@ -34,6 +33,13 @@ DEFAULT_CONFIG_TEXT = textwrap.dedent('''
     # Filters =
     #   + /foo/**
     #   - bar
+    
+    # List of subdirs to sync, newline-separated (indent line with values)
+    # Mix 'SelectDirs' and 'Filters' carefully
+    #SelectDirs = 
+    #   foo/bar
+    #   foo/baz/bar
+    #   bar
 
     ''').strip()
 
@@ -42,6 +48,7 @@ DEFAULTS = {
     'LogLevel': 'info',
     'BeforeExec':'',
     'Filters':'',
+    'SelectDirs':'', 
     }
 
 
@@ -83,6 +90,7 @@ def parse_config(config_file):
         'log_level': _to_log_level(config_parser['main']['LogLevel']),
         'rsync' : {
                 'filters': config_parser.get('rsync','Filters'),
+                'select_dirs': config_parser.get('rsync','SelectDirs'),
             }
         }
 

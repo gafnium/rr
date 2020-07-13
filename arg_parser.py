@@ -1,6 +1,5 @@
 import argparse
 import actions
-import os
 import logging
 
 DEFAULTS = dict()
@@ -76,6 +75,14 @@ def _register_other_args(parser):
         dest='remote_host',
         help='enforce to use specified host for remote running')
 
+    other_args.add_argument(
+        '-d',
+        '--dry-run',
+        action='store_const',
+        dest='dry_run',
+        const=True, 
+        help='do not actually run anything, only log commands')
+        
     force_options = other_args.add_mutually_exclusive_group()
     force_options.add_argument(
         '-f',
@@ -128,6 +135,9 @@ class RemoteRunArgParser:
             for k, v in vars(self._basic_parser.parse_args(args)).items()
                 if v)
         _easter(args)
+        
+        if 'dry_run' not in args:
+            args['dry_run'] = False
 
         if 'action' not in args:
             args['action'] = actions.RemoteRunAction

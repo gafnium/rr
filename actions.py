@@ -1,10 +1,8 @@
 import configtools
-import argparse
 import util
 import remote
 
 import logging
-import os
 import sys
 
 
@@ -36,7 +34,7 @@ class SendAction(ConfigurableAction):
         super().__init__(args)
 
     def launch(self):
-        return remote.send(self.config['local_root'], self.config['remote_host'], self.config['remote_root'], self.config['rsync'])
+        return remote.send(self.config['local_root'], self.config['remote_host'], self.config['remote_root'], self.config['rsync'],  self.config['dry_run'])
 
 
 class ReceiveAction(ConfigurableAction):
@@ -44,7 +42,7 @@ class ReceiveAction(ConfigurableAction):
         super().__init__(args)
 
     def launch(self):
-        return remote.receive(self.config['local_root'], self.config['remote_host'], self.config['remote_root'], self.config['rsync'])
+        return remote.receive(self.config['local_root'], self.config['remote_host'], self.config['remote_root'], self.config['rsync'],  self.config['dry_run'])
 
 
 def _receive_if_failed(config):
@@ -64,13 +62,13 @@ class RemoteRunAction(ConfigurableAction):
         super().__init__(args)
 
     def launch(self):
-        sent = remote.send(self.config['local_root'], self.config['remote_host'], self.config['remote_root'], self.config['rsync'])
+        sent = remote.send(self.config['local_root'], self.config['remote_host'], self.config['remote_root'], self.config['rsync'],  self.config['dry_run'])
 
         if sent:
-            result = remote.remote_exec(self.config['remote_host'], self.config['remote_dir'], self.config['before_exec'], self.config['command'])
+            result = remote.remote_exec(self.config['remote_host'], self.config['remote_dir'], self.config['before_exec'], self.config['command'],  self.config['dry_run'])
 
             if result or _receive_if_failed(self.config):
-                remote.receive(self.config['local_root'], self.config['remote_host'], self.config['remote_root'], self.config['rsync'])
+                remote.receive(self.config['local_root'], self.config['remote_host'], self.config['remote_root'], self.config['rsync'],  self.config['dry_run'])
             else:
                 logging.warning('Result not synced from server.')
                 logging.info('To sync it manually use' + ' `' + sys.argv[0] + ' -r`')

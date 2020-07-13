@@ -1,18 +1,16 @@
 import pipes
 import os
-import sys
 import logging
 import subprocess
+from filtertools import make_filters_args
 
-def rsync(src, dst, config):
-    options = ('--delete', '--verbose', '--compress', '--archive', '-e', 'ssh -q')
+def rsync(src, dst, config,  dry_run):
+    options = ['--delete', '--verbose', '--compress', '--archive', '-e', 'ssh -q']
 
-    if config['filters'] :
-        for filter in config['filters'].split('\n'):
-            if filter != '':
-              options += ('--filter', filter)
-
-    command = ('rsync',) + options + (src + '/', dst + '/')
+    if dry_run:
+        options.append('--dry-run')
+        
+    command = ['rsync'] + options + make_filters_args(config) + [src + '/', dst + '/']
 
     logging.info('Remote syncing from {} to {} '.format(src, dst))
     logging.debug('Command: {}'.format(command))
@@ -31,17 +29,17 @@ def rsync(src, dst, config):
     return result
 
 
-def send(local_dir, host, remote_dir, config):
+def send(local_dir, host, remote_dir, config,  dry_run):
     remote_path = '{}:{}'.format(host, remote_dir)
-    return rsync(local_dir, remote_path, config)
+    return rsync(local_dir, remote_path, config,  dry_run)
 
 
-def receive(local_dir, host, remote_dir, config):
+def receive(local_dir, host, remote_dir, config,  dry_run):
     remote_path = '{}:{}'.format(host, remote_dir)
-    return rsync(remote_path, local_dir, config)
+    return rsync(remote_path, local_dir, config,  dry_run)
 
 
-def remote_exec(host, remote_dir, before_exec,  command):
+def remote_exec(host, remote_dir, before_exec,  command,  dry_run):
     remote_env = ' '.join([
         '{}={}'.format(key[len('REMOTERUN_'):],pipes.quote(value)) for key, value in os.environ.items()
             if key.startswith('REMOTERUN_')])
@@ -57,4 +55,14 @@ def remote_exec(host, remote_dir, before_exec,  command):
         command = pipes.quote(full_command))
 
     logging.info('Executing {}'.format(local_command))
+    if dry_run:
+        return 0;
+        
     return os.system(local_command) == 0
+
+
+        
+    
+    
+    
+    
